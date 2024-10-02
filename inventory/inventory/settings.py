@@ -64,14 +64,23 @@ WSGI_APPLICATION = 'inventory.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# To use database in production
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'karkhana_db',
+#         'USER': 'karkhana',
+#         'PASSWORD': 'karkhana',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
+# to use locally
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'karkhana_db',
-        'USER': 'karkhana',
-        'PASSWORD': 'karkhana',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
