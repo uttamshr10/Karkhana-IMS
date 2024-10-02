@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-v*78#&=7jwcwlf0q0yg+8-8gubv2f!e@hr1ke(xjiaz_*j@dqu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['3.107.161.17', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['3.25.136.65', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -65,24 +65,24 @@ WSGI_APPLICATION = 'inventory.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # To use database in production
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'karkhana_db',
-#         'USER': 'karkhana',
-#         'PASSWORD': 'karkhana',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-
-# to use locally
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'karkhana_db',
+        'USER': 'karkhana',
+        'PASSWORD': 'karkhana',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
+
+# to use locally
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 
