@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div class="goback">
+        <a href="javascript:history.back()"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <h2 class="">Update Inventory</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button class="btn create" type="submit"><i class="fa-regular fa-pen-to-square"></i> Update</button>
+    </form>
+</div>
+{% endblock %}

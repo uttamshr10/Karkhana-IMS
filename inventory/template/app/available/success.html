@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <a style="text-decoration: none;" class="black" href="{% url 'home' %}">
+        <i class="fa-solid fa-house"></i>
+    </a>
+    <div class="heading">
+        <p class="heading">⭐ You have successfully created the following recipes ⭐</p>
+
+        <ul>
+            {% for recipe, quantity in created_recipes.items %}
+                <li style="list-style: none;">{{ quantity }} recipe of "{{ recipe.name }}"</li>
+            {% endfor %}
+        </ul>
+
+        <a class="black" href="{% url 'create_recipes' %}">Back to Recipe List</a>
+    </div>
+</div>
+{% endblock %}

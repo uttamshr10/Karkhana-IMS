@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div class="goback">
+        <a href="{% url 'home' %}"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <h1 class="heading">Unit List</h1>
+    <button class="btn btn-style">
+        <a class="black" href="{% url 'addUnit' %}"><i class="fa-solid fa-plus"></i> Create</a>
+    </button>
+    <button class="btn create" style="float:right;">
+        <a class="black" href="{% url 'upload_unit' %}"><i class="fa-solid fa-cloud-arrow-up"></i> Upload CSV Instead</a>
+    </button>
+    
+    <table border="1px">
+        <thead>
+            <tr>
+                <th style='padding-top: 15px;'>
+                    Name
+                    <div class="dropdown" style="float:right;">
+                        <button style="color: black;" onclick="toggleDropdown()" class="btn dropbtn"><i class="fa-solid fa-filter"></i> Filter</button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <form method="get" class="filter-form">
+                                <div>
+                                    <label for="starts_with">Starts with:</label>
+                                    <input type="text" id="starts_with" name="starts_with_value" placeholder="Enter starting letter">
+                                </div>
+                                <div>
+                                    <label for="ends_with">Ends with:</label>
+                                    <input type="text" id="ends_with" name="ends_with_value" placeholder="Enter ending letter">
+                                </div>
+                                <div>
+                                    <label for="search">Search:</label>
+                                    <input type="text" id="search" name="name" placeholder="Search Units">
+                                </div>
+                                <button type="submit" class="btn create">Apply</button>
+                            </form>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for unit in units %}
+            <tr>
+                <td>{{ unit.name }} <span style="float: right; font-size: 20px;">
+                    <a style="color: #6DC067; text-decoration: none;" href="javascript:void(0);" onclick="showPasswordModal('{{ unit.pk }}', 'update')">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                    <a style="color: #EE312F; padding-left: 15px; text-decoration: none;" href="javascript:void(0);" onclick="showPasswordModal('{{ unit.pk }}', 'delete')">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>                    
+                </span></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No units available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- modal for password -->
+<div id="password-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                {% if message.tags == "error" %}
+                    <li style="list-style: none;" class="heading">
+                        {{ message|safe }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <span class="close" onclick="hideModal('password-modal')">&times;</span>
+        <h2 class="heading">Please enter password</h2>
+        <form class="heading" id="password-form" method="POST" action="{% url 'verify_unit' %}">
+            {% csrf_token %}
+            <input type="password" id="password" name="password" required>
+            <input type="hidden" id="action-url" name="action_url">
+            <button type="submit" class="create btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+
+function toggleDropdown() {
+        document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn') && !event.target.closest('.dropdown-content')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+// Prevent dropdown from closing when clicking inside
+document.querySelector('.dropdown-content').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+// Close dropdown when form is submitted
+document.querySelector('.filter-form').addEventListener('submit', function() {
+    document.getElementById("myDropdown").classList.remove("show");
+});
+
+function showPasswordModal(unitPk, action) {
+    let actionUrl = "";
+    if (action === 'update') {
+        actionUrl = "{% url 'updateUnit' 0 %}".replace('0', unitPk);
+    } else if (action === 'delete') {
+        actionUrl = "{% url 'deleteUnit' 0 %}".replace('0', unitPk);
+    }
+    document.getElementById('action-url').value = actionUrl;
+    document.getElementById('password-modal').style.display = "block";
+}
+
+function hideModal(id) {
+    var modal = document.getElementById(id);
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('password-modal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
+
+{% endblock %}

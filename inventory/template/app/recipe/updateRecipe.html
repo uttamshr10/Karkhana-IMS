@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div class="goback">
+        <a href="javascript:history.back()"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <h2 class="heading">Edit Recipe: {{ recipe.name }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ recipe_form.as_p }}
+        {{ formset.management_form }}
+        <div id="formset-container">
+            {% for form in formset %}
+                <div class="formset-row">
+                    <div class="flex-style">
+                        {{ form.as_p }}
+                        <a style="padding-top: 50px;" class="black btn remove-form btn-danger" {% if forloop.first %}style="display: none;"{% endif %}><i class="fa-solid fa-trash"></i> Remove</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <button class="btn create" type="button" id="add-form"><i class="fa-solid fa-plus"></i> Add Item</button>
+        <button class="btn btn-style" type="submit"><i class="fa-regular fa-pen-to-square"></i> Update Recipe</button>
+    </form>
+</div>
+
+<script>
+    // Function to update form indices
+    function updateFormIndices() {
+        const forms = document.querySelectorAll('.formset-row');
+        forms.forEach((form, index) => {
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.name = input.name.replace(/-\d+-/, `-${index}-`);
+                input.id = input.id.replace(/-\d+-/, `-${index}-`);
+            });
+            const labels = form.querySelectorAll('label');
+            labels.forEach(label => {
+                label.setAttribute('for', label.getAttribute('for').replace(/-\d+-/, `-${index}-`));
+            });
+        });
+    }
+
+    // Function to update remove buttons visibility
+    function updateRemoveButtonsVisibility() {
+        const forms = document.querySelectorAll('.formset-row');
+        forms.forEach((form, index) => {
+            const removeButton = form.querySelector('.remove-form');
+            if (forms.length === 1) {
+                removeButton.style.display = 'none';
+            } else {
+                removeButton.style.display = 'inline-block';
+            }
+        });
+    }
+
+    // Add new form
+    document.getElementById('add-form').addEventListener('click', function() {
+        const formsetContainer = document.getElementById('formset-container');
+        const totalForms = document.querySelector('#id_items-TOTAL_FORMS');
+        const newFormIndex = parseInt(totalForms.value);
+
+        if (newFormIndex < 20) {
+            const emptyForm = document.querySelector('.formset-row').cloneNode(true);
+            const inputs = emptyForm.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.type !== 'hidden') {
+                    if (input.tagName === 'SELECT' && input.name.includes('quantity')) {
+                        input.value = '1';  // Set default value for quantity field
+                    } else {
+                        input.value = '';
+                    }
+                }
+                input.name = input.name.replace(/-\d+-/, `-${newFormIndex}-`);
+                input.id = input.id.replace(/-\d+-/, `-${newFormIndex}-`);
+            });
+
+            const labels = emptyForm.querySelectorAll('label');
+            labels.forEach(label => {
+                label.setAttribute('for', label.getAttribute('for').replace(/-\d+-/, `-${newFormIndex}-`));
+            });
+
+            formsetContainer.appendChild(emptyForm);
+            totalForms.value = newFormIndex + 1;
+            updateRemoveButtonsVisibility();
+        }
+    });
+
+    // Remove form
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-form')) {
+            const formRow = e.target.closest('.formset-row');
+            const deleteInput = formRow.querySelector('input[name$="-DELETE"]');
+            if (deleteInput) {
+                deleteInput.checked = true;
+                formRow.style.display = 'none';
+            } else {
+                formRow.remove();
+            }
+            updateFormIndices();
+            updateRemoveButtonsVisibility();
+            const totalForms = document.querySelector('#id_items-TOTAL_FORMS');
+            totalForms.value = parseInt(totalForms.value) - 1;
+        }
+    });
+
+    // Initial call to set up remove buttons
+    updateRemoveButtonsVisibility();
+</script>
+{% endblock %}

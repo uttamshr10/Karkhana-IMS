@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div class="goback">
+        <a href="javascript:history.back()"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <div style="float: right; margin-top: 30px; margin-right: 15px;">
+        <a style="text-decoration: none;" class="black" href="{% url 'home' %}"><i class="fa-solid fa-house"></i></a>
+    </div>
+    <h1 class="heading">Check Recipes</h1>
+    <form method="post" id="recipe-form">
+        {% csrf_token %}
+        <div class="flex">
+            {{ form.as_p }}
+            <button class="btn create" type="submit"><i class="fa-solid fa-plus"></i> Check Recipes</button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Script to dynamically disable already selected recipes in subsequent dropdowns
+const recipeSelect = document.getElementById('id_recipes');
+recipeSelect.addEventListener('change', function() {
+    let selectedOptions = Array.from(this.selectedOptions).map(option => option.value);
+    let options = Array.from(this.options);
+    
+    options.forEach(option => {
+        option.disabled = selectedOptions.includes(option.value) && !option.selected;
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div id="container">
+    <div class="goback">
+        <a href="javascript:history.back()"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <h2 class="heading">Delete Unit</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="heading">
+            <p>Are you sure you want to delete - {{unit.name}} ?</p>
+            <p><span style="color: #EE312F;">WARNING !!</span> When you delete {{unit.name}}, It will delete all the inventory which has unit of {{unit.name}}, Go back and check again <a class="black" href="{% url 'inventories' %}">here.</a></p>
+            <button class="btn delete" type="submit"><i class="fa-solid fa-trash"></i> Delete</button>
+            <a class="btn cancel" href="{% url 'units' %}"><i class="fa-solid fa-xmark"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

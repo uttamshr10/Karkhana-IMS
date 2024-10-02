@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div class="heading">
+        <h2>Recipe Creation Confirmation</h2>
+        
+        <p>Do you want to create the following recipes?</p>
+        <ul>
+            {% for recipe in recipes %}
+                <li style="list-style: none;">{{ number_of_recipes }} recipe of "{{ recipe.name }}"</li>
+            {% endfor %}
+        </ul>
+        
+        <form method="post" action="{% url 'confirm_creation' %}">
+            {% csrf_token %}
+            
+            {% for recipe in recipes %}
+                <input type="hidden" name="recipes" value="{{ recipe.id }}">
+            {% endfor %}
+            <input type="hidden" name="number_of_recipes" value="{{ number_of_recipes }}">
+            
+            <button class="btn create" type="submit" name="confirm" value="yes">
+                <i class="fa-solid fa-check"></i> Yes
+            </button>
+            <button class="btn delete" type="submit" name="confirm" value="no">
+                <i class="fa-solid fa-xmark"></i> No
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

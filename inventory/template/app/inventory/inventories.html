@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div id="container">
+    <div class="goback">
+        <a href="{% url 'home' %}"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <h1 class="heading">Inventory List</h1>
+    <div>
+        <button class="btn btn-style">
+            <a class="black" href="{% url 'addInventory' %}"><i class="fa-solid fa-plus"></i> Create</a>
+        </button>
+    </div>
+    
+    <table border="1px">
+        <tr>
+            <th>Code</th>
+            <th style='padding-top: 25px;'>Name
+                <div class="dropdown" style="float:right;">
+                    <button style="color: black;" onclick="toggleDropdown('nameDropdown')" class="btn dropbtn"><i class="fa-solid fa-filter"></i></button>
+                    <div id="nameDropdown" class="dropdown-content">
+                        <form method="get" class="filter-form">
+                            <div>
+                                <label for="name_starts_with">Starts with:</label>
+                                <input type="text" id="name_starts_with" name="starts_with_value" placeholder="Enter starting letter">
+                            </div>
+                            <div>
+                                <label for="name_ends_with">Ends with:</label>
+                                <input type="text" id="name_ends_with" name="ends_with_value" placeholder="Enter ending letter">
+                            </div>
+                            <div>
+                                <label for="name_search">Search:</label>
+                                <input type="text" id="name_search" name="name" placeholder="Search Inventories">
+                            </div>
+                            <button type="submit" class="btn create">Apply</button>
+                        </form>
+                    </div>
+                </div>
+            </th>
+            <th>Unit Price</th>
+            <th style="padding-top:25px;">Quantity
+                <div class="dropdown" style="float:right;">
+                    <button style="color: black;" onclick="toggleDropdown('quantityDropdown')" class="btn dropbtn"><i class="fa-solid fa-filter"></i></button>
+                    <div id="quantityDropdown" class="dropdown-content">
+                        <form method="get" class="filter-form">
+                            <div>
+                                <label><input type="radio" name="quantity_range" value="0-1000"> 0 - 1000</label><br>
+                                <label><input type="radio" name="quantity_range" value="1001-5000"> 1001 - 5000</label><br>
+                                <label><input type="radio" name="quantity_range" value="5001-10000"> 5001 - 10000</label><br>
+                                <label><input type="radio" name="quantity_range" value="10000+"> 10000+</label><br>
+                            </div>
+                            <button type="submit" class="btn create">Apply</button>
+                        </form>
+                    </div>
+                </div>
+            </th>
+            <th style="padding-top: 25px;">Total Price (in Rs.)
+                <div class="dropdown" style="float:right;">
+                    <button style="color: black;" onclick="toggleDropdown('priceDropdown')" class="btn dropbtn"><i class="fa-solid fa-filter"></i></button>
+                    <div id="priceDropdown" class="dropdown-content">
+                        <form method="get" class="filter-form">
+                            <div>
+                                <label><input type="radio" name="price_range" value="0-5000"> 0 - 5000</label><br>
+                                <label><input type="radio" name="price_range" value="5001-10000"> 5001 - 10000</label><br>
+                                <label><input type="radio" name="price_range" value="10000+"> 10000+</label><br>
+                            </div>
+                            <button type="submit" class="btn create">Apply</button>
+                        </form>
+                    </div>
+                </div>
+            </th>
+            <th style="padding-top: 25px;">Location
+                <div class="dropdown" style="float:right;">
+                    <button style="color: black;" onclick="toggleDropdown('locationDropdown')" class="btn dropbtn"><i class="fa-solid fa-filter"></i></button>
+                    <div id="locationDropdown" class="dropdown-content">
+                        <form method="get" class="filter-form">
+                            <div>
+                                <label for="find_search">Search:</label>
+                                <input type="text" id="find_search" name="find" placeholder="Search Location">
+                            </div>
+                            <button type="submit" class="btn create">Apply</button>
+                        </form>
+                    </div>
+                </div>
+            </th>
+        </tr>
+        {% for inventory in inventories %}
+        <tr>
+            <td>{{inventory.name.code}}</td>
+            <td>{{inventory.name}} <span style="float: right; font-size: 20px;">
+                <a style="color: #6DC067; text-decoration: none;" href="javascript:void(0);" onclick="showPasswordModal('{{ inventory.pk }}', 'update')">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+                <a style="color: #EE312F; padding-left: 15px; text-decoration: none;" href="javascript:void(0);" onclick="showPasswordModal('{{ inventory.pk }}', 'delete')">
+                    <i class="fa-solid fa-trash"></i>
+                </a>    
+            </span></td>
+            <!-- Unit Price -->
+            <td>{{inventory.name.price_per_unit|floatformat:0}}</td>
+            <td>{{ inventory.quantity}}</td>
+            <td>Rs. {{ inventory.total_price }}</td>
+            <td>{{inventory.location}}</td>
+            <!-- <td>{{ inventory.quantity|floatformat:0}}</td> -->
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No inventories available.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+</div>
+
+<!-- modal for password -->
+<div id="password-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                {% if message.tags == "error" %}
+                    <li style="list-style: none;" class="heading">
+                        {{ message|safe }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <span class="close" onclick="hideModal('password-modal')">&times;</span>
+        <h2 class="heading">Please enter password</h2>
+        <form class="heading" id="password-form" method="POST" action="{% url 'verify_inventory' %}">
+            {% csrf_token %}
+            <input type="password" id="password" name="password" required>
+            <input type="hidden" id="action-url" name="action_url">
+            <button type="submit" class="create btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleDropdown(dropdownId) {
+    document.getElementById(dropdownId).classList.toggle("show");
+}
+
+// Close the dropdown when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn') && !event.target.closest('.dropdown-content')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+// Prevent dropdown from closing when clicking inside
+document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+    dropdown.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+});
+
+// Close dropdown when form is submitted
+document.querySelectorAll('.filter-form').forEach(form => {
+    form.addEventListener('submit', function() {
+        this.closest('.dropdown-content').classList.remove("show");
+    });
+});
+
+function showPasswordModal(inventoryPk, action) {
+    let actionUrl = "";
+    if (action === 'update') {
+        actionUrl = "{% url 'update' 0 %}".replace('0', inventoryPk);
+    } else if (action === 'delete') {
+        actionUrl = "{% url 'delete' 0 %}".replace('0', inventoryPk);
+    }
+    document.getElementById('action-url').value = actionUrl;
+    document.getElementById('password-modal').style.display = "block";
+}
+
+function hideModal(id) {
+    var modal = document.getElementById(id);
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('password-modal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
+
+{% endblock %}

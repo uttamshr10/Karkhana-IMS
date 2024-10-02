@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div style="float:right;">
+        <a style="text-decoration: none;" class="black" href="{% url 'home' %}"><i class="fa-solid fa-house"></i></a>
+    </div>
+    <div class="heading">
+        <h2>Out of Stock</h2>
+        <p>Sorry, you cannot create the recipes because you are out of stock for following items:</p>
+        <ul>
+            {% for item in out_of_stock %}
+                <p>{{ item.item }}: You need {{ item.remaining|floatformat:0 }} more units to create the recipe.</p>
+            {% endfor %}
+        </ul>
+        <a class="black" href="{% url 'create_recipes' %}">Back to Selection</a>
+    </div>
+</div>
+{% endblock %}

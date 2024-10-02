@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div class="goback">
+        <a href="javascript:history.back()"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <div style="float: right; margin-top: 30px; margin-right: 15px;">
+        <a style="text-decoration: none; " class="black" href="{% url 'home' %}"><i class="fa-solid fa-house"></i></a>
+    </div>
+    <h2 class="heading">Create Recipe</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ recipe_form.as_p }}
+        {{ formset.management_form }}
+        <div id="formset-container">
+            {% for form in formset %}
+                <div class="formset-row">
+                        <div class="flex-it">
+                            {{ form.as_p }}
+                            <!-- <button style="display: flex;" type="button" class="remove-form btn btn-danger delete" {% if forloop.first %}style="display: none;"{% endif %}><i class="fa-solid fa-trash"></i> Remove</button> -->
+                            <a style="padding-top: 50px;" class="black btn remove-form btn-danger" {% if forloop.first %}style="display: none;"{% endif %}><i class="fa-solid fa-trash"></i> Remove</a>
+                        </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="btn create" type="button" id="add-form"><i class="fa-solid fa-plus"></i> Add Item</button>
+        <button class="btn btn-style" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save Recipe</button>
+    </form>
+</div>
+
+<script>
+    function updateFormIndices() {
+        const forms = document.querySelectorAll('.formset-row');
+        forms.forEach((form, index) => {
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.name = input.name.replace(/-\d+-/, `-${index}-`);
+                input.id = input.id.replace(/-\d+-/, `-${index}-`);
+            });
+            const labels = form.querySelectorAll('label');
+            labels.forEach(label => {
+                label.setAttribute('for', label.getAttribute('for').replace(/-\d+-/, `-${index}-`));
+            });
+        });
+    }
+
+    function updateRemoveButtonsVisibility() {
+        const forms = document.querySelectorAll('.formset-row');
+        forms.forEach((form, index) => {
+            const removeButton = form.querySelector('.remove-form');
+            if (forms.length === 1) {
+                removeButton.style.display = 'none';
+            } else {
+                removeButton.style.display = 'inline-block';
+            }
+        });
+    }
+
+    document.getElementById('add-form').addEventListener('click', function() {
+        const formsetContainer = document.getElementById('formset-container');
+        const forms = document.querySelectorAll('.formset-row');
+        const totalForms = document.querySelector('#id_items-TOTAL_FORMS');
+
+        if (forms.length < 20) {
+            const newForm = forms[0].cloneNode(true);
+
+            const inputs = newForm.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.type !== 'hidden') {
+                    if (input.tagName === 'SELECT' && input.name.includes('quantity')) {
+                        input.value = '1';
+                    } else {
+                        input.value = '';
+                    }
+                }
+                input.name = input.name.replace(/-\d+-/, `-${forms.length}-`);
+                input.id = input.id.replace(/-\d+-/, `-${forms.length}-`);
+            });
+
+            const labels = newForm.querySelectorAll('label');
+            labels.forEach(label => {
+                label.setAttribute('for', label.getAttribute('for').replace(/-\d+-/, `-${forms.length}-`));
+            });
+
+            formsetContainer.appendChild(newForm);
+            totalForms.value = forms.length + 1;
+            updateRemoveButtonsVisibility();
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-form')) {
+            const formRow = e.target.closest('.formset-row');
+            formRow.remove();
+            updateFormIndices();
+            updateRemoveButtonsVisibility();
+            const totalForms = document.querySelector('#id_items-TOTAL_FORMS');
+            totalForms.value = document.querySelectorAll('.formset-row').length;
+        }
+    });
+
+    updateRemoveButtonsVisibility();
+</script>
+{% endblock %}

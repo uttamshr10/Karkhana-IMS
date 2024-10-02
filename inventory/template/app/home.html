@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+<div id="container">
+    <h1 class="heading">Hello, <span style="color: #EE312F;"><i>Karkhana Asia</i></span></h1>
+    <div class="flex">
+        <p class="heading">
+            <a style="text-decoration: none;" class="black" href="javascript:void(0);" onclick="showPasswordModal('upload_inventory')">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Inventory</a>
+        </p>
+        <!-- <p class="heading"><a style='text-decoration: none;' class="black" href="{% url 'upload_inventory' %}"><i class="fa-solid fa-cloud-arrow-up"></i> Inventory</a></p> -->
+        <p class="heading"><a style="text-decoration: none;" class="black" href="{% url 'addInventory' %}">Add <img src="{% static 'warehouse.png' %}" height="25" width:"25" alt=""></a></p>
+        <p class="heading"><a style="text-decoration: none;" class="black" href="{% url 'inventories' %}">Check <img src="{% static 'warehouse.png' %}" height="25" width:"25" alt=""></a></p>
+        <p class="heading"><a style="text-decoration: none;" class="black" href="{% url 'addRecipe' %}">Add <img src="{% static 'recipe.png' %}" height="25" width:"25" alt=""></a></p>
+        <p class="heading"><a style="text-decoration: none;" class="black" href="{% url 'recipes' %}">Check <img src="{% static 'recipe.png' %}" height="25" width:"25" alt=""></a></p>
+        <p class="heading"><a style="text-decoration: none;" class="black" href="{% url 'create_recipes' %}">Check <img src="{% static 'convenience.png' %}" height="25" width:"25" alt=""></a></p>
+        <!-- <p class="heading">Go to <a class="black" href="{% url 'addInventory' %}">Add Inventory</a></p>
+        <p class="heading">Go to <a class="black" href="{% url 'inventories' %}">Check Inventories</a></p>
+        <p class="heading">Go to <a class="black" href="{% url 'addRecipe' %}">Add Recipe</a></p>
+        <p class="heading">Go to <a class="black" href="{% url 'recipes' %}">Check Recipes</a></p>
+        <p class="heading">Go to <a class="black" href="{% url 'create_recipes' %}">Check Availability</a></p> -->
+    </div>
+</div>
+<div id="password-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                {% if message.tags == "error" %}
+                    <li style="list-style: none;" class="heading">
+                        {{ message|safe }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <span class="close" onclick="hideModal('password-modal')">&times;</span>
+        <h2 class="heading">Please enter password</h2>
+        <form class="heading" id="password-form" method="POST" action="{% url 'verify_upload' %}">
+            {% csrf_token %}
+            <input type="password" id="password" name="password" required>
+            <input type="hidden" id="action-url" name="action_url">
+            <button type="submit" class="create btn">Submit</button>
+        </form>
+    </div>
+</div>
+<script>
+function showPasswordModal(action) {
+    let actionUrl = "";
+    if (action === 'upload_inventory') {
+        actionUrl = "{% url 'upload_inventory'%}";
+    }
+    document.getElementById('action-url').value = actionUrl;
+    document.getElementById('password-modal').style.display = "block";
+}
+
+function hideModal(id) {
+    var modal = document.getElementById(id);
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    var modal = document.getElementById('password-modal');
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}  
+</script>
+{% endblock %}

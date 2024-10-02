@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div id="container">
+        <div class="goback">
+            <a href="javascript:history.back()"><i class="fa-solid fa-backward"></i> Back</a>
+        </div>
+        
+        <h1 class="heading">Import Recipe CSV Data</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="csv_file" accept=".csv" required>
+            <button class="btn create" type="submit"><i class="fa-solid fa-plus"></i> Import</button>
+        </form>
+    </div>
+    {% endblock %}

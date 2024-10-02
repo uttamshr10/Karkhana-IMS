@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="container">
+    <div class="goback">
+        <a href="{% url 'home' %}"><i class="fa-solid fa-backward"></i> Back</a>
+    </div>
+    <h1 class="heading">Recipe List</h1>
+    <button class="btn btn-style">
+        <a class="black" href="{% url 'addRecipe' %}"><i class="fa-solid fa-plus"></i> Create</a>
+    </button>
+    <table border="1px">
+        <thead>
+            <tr>
+                <th style='padding-top: 15px;'>Name of the Recipe
+                    <div class="dropdown" style="float:right;">
+                        <button style="color: black;" onclick="toggleDropdown()" class="btn dropbtn"><i class="fa-solid fa-filter"></i> Filter</button>
+                        <div id="myDropdown" class="dropdown-content">
+                            <form method="get" class="filter-form">
+                                <div>
+                                    <label for="starts_with">Starts with:</label>
+                                    <input type="text" id="starts_with" name="starts_with_value" placeholder="Enter starting letter">
+                                </div>
+                                <div>
+                                    <label for="ends_with">Ends with:</label>
+                                    <input type="text" id="ends_with" name="ends_with_value" placeholder="Enter ending letter">
+                                </div>
+                                <div>
+                                    <label for="search">Search:</label>
+                                    <input type="text" id="search" name="name" placeholder="Search Recipes">
+                                </div>
+                                <button type="submit" class="btn create">Apply</button>
+                            </form>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recipe in recipes %}
+            <tr>
+                <td>
+                    <a style="color: black; text-decoration: none;" href="javascript:void(0);" onclick="showModal('recipe-details-{{ recipe.pk }}')">{{ recipe.name }}</a>
+                    <span style="float: right; font-size: 20px;">
+                        <a style="color: #6DC067; text-decoration: none;" href="javascript:void(0);" onclick="showPasswordModal('{{ recipe.pk }}', 'update')">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a style="color: #EE312F; padding-left: 15px; text-decoration: none;" href="javascript:void(0);" onclick="showPasswordModal('{{ recipe.pk }}', 'delete')">
+                            <i class="fa-solid fa-trash"></i>
+                        </a>
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No recipes available.</td>
+            </tr>
+            {% endfor %}
+            <tr style="margin: 100px;">
+                <td class="heading" style="background: #FBB040;" colspan="3">Check availability <a class="black" href="{% url 'create_recipes' %}"> here.</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Password Modal Structure -->
+<div id="password-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                {% if message.tags == "error" %}
+                    <li style="list-style: none;" class="heading">
+                        {{ message|safe }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <span class="close" onclick="hideModal('password-modal')">&times;</span>
+        <h2 class="heading">Please enter password</h2>
+        <form class="heading" id="password-form" method="POST" action="{% url 'verify_recipe' %}">
+            {% csrf_token %}
+            <input type="password" id="password" name="password" required>
+            <input type="hidden" id="action-url" name="action_url">
+            <button type="submit" class="create btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Recipe Details Modals -->
+{% for recipe in recipes %}
+<div id="recipe-details-{{ recipe.pk }}" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="hideModal('recipe-details-{{ recipe.pk }}')">&times;</span>
+        <h2>{{ recipe.name }}</h2>
+        <table border="1px">
+            <thead>
+                <tr>
+                    <th>Inventory Name</th>
+                    <th>Total Price (in Rs.)</th>
+                    <th>Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recipe.items.all %}
+                <tr>
+                    <td>{{ item.inventory.name }}</td>
+                    <!-- Unit Price -->
+                    <!-- <td>{{item.price_per_unit|floatformat:0}}</td> -->
+                    <td>Rs. {{ item.get_total_price |floatformat:0 }}</td>
+                    <td>{{ item.quantity }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No inventory items for this recipe.</td>
+                </tr>
+                {% endfor %}
+                <!-- <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>{{ recipe.total_unit_price|floatformat:0 }}</strong></td>
+                    <td><strong>{{ recipe.total_quantity }}</strong></td>
+                </tr> -->
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function toggleDropdown() {
+        document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn') && !event.target.closest('.dropdown-content')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+// Prevent dropdown from closing when clicking inside
+document.querySelector('.dropdown-content').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+// Close dropdown when form is submitted
+document.querySelector('.filter-form').addEventListener('submit', function() {
+    document.getElementById("myDropdown").classList.remove("show");
+});
+
+function showPasswordModal(recipePk, action) {
+    let actionUrl = "";
+    if (action === 'update') {
+        actionUrl = "{% url 'updateRecipe' 0 %}".replace('0', recipePk);
+    } else if (action === 'delete') {
+        actionUrl = "{% url 'deleteRecipe' 0 %}".replace('0', recipePk);
+    }
+    document.getElementById('action-url').value = actionUrl;
+    document.getElementById('password-modal').style.display = "block";
+}
+
+function showModal(id) {
+    var modal = document.getElementById(id);
+    modal.style.display = "block";
+}
+
+function hideModal(id) {
+    var modal = document.getElementById(id);
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    var modals = document.getElementsByClassName('modal');
+    for (var i = 0; i < modals.length; i++) {
+        if (event.target == modals[i]) {
+            modals[i].style.display = "none";
+        }
+    }
+}
+</script>
+
+{% endblock %}
